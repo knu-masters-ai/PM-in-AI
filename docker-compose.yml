@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: kidney_app
+    environment:
+      - BACKEND_URL=http://localhost:8000
+      - STREAMLIT_SERVER_HEADLESS=true
+    ports:
+      - "8000:8000"  # FastAPI docs -> http://localhost:8000/docs
+      - "8501:8501"  # Streamlit UI -> http://localhost:8501
