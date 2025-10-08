@@ -7,7 +7,34 @@ from dotenv import load_dotenv
 load_dotenv()
 API_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
-st.set_page_config(page_title="KidneyStoneAI (mock)", page_icon="🩺")
+st.set_page_config(
+    page_title="KidneyStoneAI (mock)",
+    page_icon="🩺",
+    layout="centered",
+    initial_sidebar_state="expanded",
+)
+st.markdown(
+    """
+    <style>
+    /* Трохи «медичної» стилізації */
+    .stApp header { background: transparent; }
+    .stDownloadButton > button, .stButton > button {
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        border: 1px solid #d9e6f2;
+    }
+    .stDownloadButton > button:hover, .stButton > button:hover {
+        box-shadow: 0 2px 10px rgba(42,157,244,0.25);
+        border-color: #2A9DF4;
+    }
+    .st-emotion-cache-16idsys p, p {
+        line-height: 1.55;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.title("🩺 KidneyStoneAI (mock)")
 st.caption("Upload a kidney scan image — mocked model will classify and highlight stones.")
 

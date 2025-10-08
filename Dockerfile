@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY api ./api
 COPY ui ./ui
+RUN mkdir -p /app/.streamlit
+COPY ui/.streamlit/config.toml /app/.streamlit/config.toml
 COPY supervisord.conf ./supervisord.conf
 
 EXPOSE 8000 8501
