@@ -3,10 +3,16 @@ name: CI & Deploy to Fly.io
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test-build:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,21 +22,34 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
       - name: Install deps
         run: |
           python -m pip install -U pip
           pip install -r requirements.txt
+          python -m pip install ruff black pytest
 
-      - name: Lint & Tests
-        run: |
-          python -m pip install ruff black pytest || true
-          ruff check api ui || true
-          black --check api ui || true
-          pytest -q || true
+      - name: Ruff (lint)
+        run: ruff check api ui tests
+
+      - name: Black (format check)
+        run: black --check api ui tests
+
+      - name: Pytest
+        env:
+          PYTHONPATH: .
+        run: pytest -q
 
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: test-build
+    needs: lint-and-test
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -39,12 +58,15 @@ jobs:
       - name: Setup Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
+      - name: Ensure app name in fly.toml
+        env:
+          FLY_APP_NAME: ${{ vars.FLY_APP_NAME }}
+        run: |
+          test -n "$FLY_APP_NAME"
+          sed -i "s/^app = \".*\"/app = \"${FLY_APP_NAME}\"/" fly.toml
+          grep '^app = ' fly.toml
+
       - name: Deploy to Fly
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-          FLY_APP_NAME: ${{ vars.FLY_APP_NAME }}
-        run: |
-          # Переконайся, що в fly.toml app = FLY_APP_NAME
-          sed -i "s/app = \".*\"/app = \"${FLY_APP_NAME}\"/" fly.toml
-          # Деплой з віддаленим білдом (на builder Fly). Використовує Dockerfile з кореня.
-          flyctl deploy --remote-only --build-arg BUILDKIT_INLINE_CACHE=1
+        run: flyctl deploy --remote-only --build-arg BUILDKIT_INLINE_CACHE=1
