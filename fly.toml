@@ -6,8 +6,7 @@ primary_region = "fra"  # вибери найближчий регіон (fra, w
   # Ми вже маємо Dockerfile, тож build section можна лишити порожнім
 
 [env]
-  # UI має звертатись до API через публічний порт 8080 цього ж застосунку
-  BACKEND_URL = "http://pm-in-ai-v2.fly.dev:8080"
+  BACKEND_URL = "http://localhost:8000"
   STREAMLIT_SERVER_HEADLESS = "true"
   STREAMLIT_BROWSER_GATHER_USAGE_STATS = "false"
   PYTHONUNBUFFERED = "1"
@@ -40,36 +39,4 @@ primary_region = "fra"  # вибери найближчий регіон (fra, w
     method = "GET"
     path = "/"
     protocol = "http"
-    tls_skip_verify = false
-    grace_period = "10s"
-
-# --- СЕРВІС API (FastAPI) на 8080/8443 ---
-[[services]]
-  internal_port = 8000
-  protocol = "tcp"
-
-  auto_start_machines = true
-  auto_stop_machines = true
-  min_machines_running = 0
-
-  [[services.ports]]
-    port = 8080   # HTTP доступ до API
-    handlers = ["http"]
-
-  [[services.ports]]
-    port = 8443   # TLS порт (не обов'язково використовувати)
-    handlers = ["tls", "http"]
-
-  [services.concurrency]
-    hard_limit = 100
-    soft_limit = 50
-    type = "connections"
-
-  [[services.http_checks]]
-    interval = "10s"
-    timeout = "2s"
-    method = "GET"
-    path = "/health"
-    protocol = "http"
-    tls_skip_verify = false
     grace_period = "10s"
