@@ -8,7 +8,7 @@ load_dotenv()
 API_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(
-    page_title="KidneyStoneAI (mock)",
+    page_title="KidneyStoneAI",
     page_icon="🩺",
     layout="centered",
     initial_sidebar_state="expanded",
@@ -35,15 +35,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("🩺 KidneyStoneAI (mock)")
-st.caption("Upload a kidney scan image — mocked model will classify and highlight stones.")
+st.title("🩺 KidneyStoneAI")
+st.caption("Upload a kidney scan image — model will classify and highlight stones.")
 
 uploaded = st.file_uploader("Choose an image", type=["png", "jpg", "jpeg"])
 
 if uploaded:
     st.image(uploaded, caption="Original", use_column_width=True)
     files = {"file": (uploaded.name, uploaded.getvalue(), uploaded.type)}
-    with st.spinner("Analyzing (mock)..."):
+    with st.spinner("Analyzing..."):
         response = requests.post(f"{API_URL}/predict", files=files, timeout=60)
         data = response.json()
     st.success(f"Result: {data['label']} (confidence {data['confidence']:.2f})")

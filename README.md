@@ -1,7 +1,7 @@
 # PM-in-AI
 Group project for PM in AI practices
 
-# KidneyStoneAI (mock)
+# KidneyStoneAI
 
 End-to-end demo for kidney stone classification & localization.
 
