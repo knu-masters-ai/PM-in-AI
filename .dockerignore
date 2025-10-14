@@ -1,0 +1,41 @@
+# репо/інструменти
+.git
+.gitignore
+.github/
+.idea/
+.vscode/
+*.code-workspace
+
+# Python артефакти
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# дані/моделі/кеші
+data/
+datasets/
+notebooks/
+*.ipynb
+*.ipynb_checkpoints/
+wandb/
+mlruns/
+.cache/
+.tmp/
+logs/
+media/
+screenshots/
+
+# тести та локальні штуки
+tests/
+coverage/
+htmlcov/
+pytest.cache/
+local_*/
