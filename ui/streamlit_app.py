@@ -46,7 +46,7 @@ if uploaded:
     with st.spinner("Analyzing..."):
         response = requests.post(f"{API_URL}/predict", files=files, timeout=60)
         data = response.json()
-    st.success(f"Result: {data['label']} (confidence {data['confidence']:.2f})")
+    st.success(f"Result: {data['label']}")
     st.write(data.get("message", ""))
     img_b64 = data["image_base64"]
     img_bytes = base64.b64decode(img_b64)

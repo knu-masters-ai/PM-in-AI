@@ -39,4 +39,4 @@ primary_region = "fra"  # вибери найближчий регіон (fra, w
     method = "GET"
     path = "/"
     protocol = "http"
-    grace_period = "10s"
+    grace_period = "60s"
