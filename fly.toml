@@ -1,5 +1,5 @@
 # fly.toml
-app = "pm-in-ai"
+app = "pm-in-ai-v2"
 primary_region = "fra"  # вибери найближчий регіон (fra, waw, cdg, lhr, etc.)
 
 [build]
@@ -7,7 +7,7 @@ primary_region = "fra"  # вибери найближчий регіон (fra, w
 
 [env]
   # UI має звертатись до API через публічний порт 8080 цього ж застосунку
-  BACKEND_URL = "http://pm-in-ai.fly.dev:8080"
+  BACKEND_URL = "http://pm-in-ai-v2.fly.dev:8080"
   STREAMLIT_SERVER_HEADLESS = "true"
   STREAMLIT_BROWSER_GATHER_USAGE_STATS = "false"
   PYTHONUNBUFFERED = "1"
@@ -53,7 +53,7 @@ primary_region = "fra"  # вибери найближчий регіон (fra, w
   min_machines_running = 0
 
   [[services.ports]]
-    port = 8080   # HTTP доступ до API: https://pm-in-ai.fly.dev:8080
+    port = 8080   # HTTP доступ до API
     handlers = ["http"]
 
   [[services.ports]]
