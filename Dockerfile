@@ -1,16 +1,17 @@
 FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libjpeg62-turbo libpng16-16 libgl1 libglib2.0-0 supervisor \
-    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+      libgomp1 libjpeg62-turbo libpng16-16 \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY requirements.txt ./
+
+# 1) Встан. тільки runtime-залежності
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY api ./api
@@ -26,4 +27,9 @@ ENV MODEL_WEIGHTS=/app/api/weights/best.onnx \
     STREAMLIT_SERVER_HEADLESS=true \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
-CMD ["supervisord", "-c", "/app/supervisord.conf"]
+# 4) Запусти API і UI в одному контейнері, без supervisor
+CMD bash -lc '\
+  uvicorn api.app:app --host 0.0.0.0 --port 8000 & \
+  streamlit run ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501 & \
+  wait -n \
+'

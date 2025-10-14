@@ -1,15 +1,20 @@
+# api/app.py
+from __future__ import annotations
+
 import io
 import os
+
+import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, UnidentifiedImageError
 
 from .schemas import PredictionResponse, BBox
-from .inference import predict
+from .inference import predict  # -> всередині має викликати ONNX-бекенд (onnxruntime)
 from .utils import draw_boxes, pil_to_base64_png
-from .yolo_model import load_yolo_model
+from .onnx_infer import yolo_onnx_predict  # для warm-up
 
-app = FastAPI(title="KidneyStoneAI (YOLO)", version="0.3.0")
+app = FastAPI(title="KidneyStoneAI (ONNX)", version="0.4.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,13 +25,19 @@ app.add_middleware(
 
 @app.on_event("startup")
 def _warmup_model():
-    weights = os.getenv("MODEL_WEIGHTS", "api/weights/best.pt")
+    """
+    Перевіряємо, що ONNX-ваги доступні та інференс працює.
+    Робимо один прогін на «порожньому» зображенні 320×320.
+    """
+    weights = os.getenv("MODEL_WEIGHTS", "api/weights/best.onnx")
     try:
-        load_yolo_model(weights)
-        print(f"[startup] YOLO weights loaded: {weights}")
+        dummy = Image.fromarray(np.zeros((320, 320, 3), dtype=np.uint8))
+        # одноразовий інференс прогріє сесію onnxruntime (якщо кеш реалізовано у onnx_infer)
+        label, conf, _ = yolo_onnx_predict(dummy, weights_path=weights, conf=0.25, iou=0.45, imgsz=320)
+        print(f"[startup] ONNX weights loaded: {weights} -> warmup: {label} ({conf:.2f})")
     except Exception as e:
-        # якщо ваг немає — краще впасти явно, щоб не було “тихо”
-        raise RuntimeError(f"Failed to load YOLO weights at startup: {e}") from e
+        # якщо ваг немає/биті — краще впасти явно
+        raise RuntimeError(f"Failed to load ONNX weights at startup: {e}") from e
 
 
 @app.get("/health")

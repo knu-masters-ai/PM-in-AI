@@ -3,25 +3,9 @@ uvicorn==0.30.6
 pydantic==2.9.2
 python-multipart==0.0.9
 pillow==10.4.0
-
-# NumPy: під Python < 3.10 — 1.26.4; інакше — 2.1.1
-numpy==1.26.4; python_version < "3.10"
-numpy==2.1.1; python_version >= "3.10"
-
-# Streamlit: 3.9.7 не підтримується у нових версіях -> ставимо 1.12.0 тільки для 3.9.7
-streamlit==1.12.0; python_full_version == "3.9.7"
-# Для всіх інших версій Python окрім 3.9.7 — сучасна версія
-streamlit==1.38.0; python_version >= "3.8" and python_full_version != "3.9.7"
-
+numpy==1.26.4
+streamlit==1.38.0
 requests==2.32.3
 python-dotenv==1.0.1
-httpx==0.27.2
-
-# Dev/CI
+onnxruntime==1.19.2
 pytest==8.3.3
-ruff==0.6.9
-black==24.8.0
-
-# --- YOLO (Ultralytics) ---
-ultralytics==8.3.21
-opencv-python-headless==4.10.0.84
