@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional, Any
 
 
 class BBox(BaseModel):
@@ -16,3 +16,4 @@ class PredictionResponse(BaseModel):
     boxes: List[BBox]
     image_base64: str
     message: str
+    explanation: Optional[Any] = None   # JSON від OpenAI (strict schema)
