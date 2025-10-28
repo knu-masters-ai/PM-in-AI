@@ -18,6 +18,8 @@ build/
 .venv/
 venv/
 env/
+.env
+*.env
 
 # дані/моделі/кеші
 data/

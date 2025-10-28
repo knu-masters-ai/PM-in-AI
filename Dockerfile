@@ -29,7 +29,7 @@ ENV MODEL_WEIGHTS=/app/api/weights/best.onnx \
 
 # 4) Запусти API і UI в одному контейнері, без supervisor
 CMD bash -lc '\
-  uvicorn api.app:app --host 0.0.0.0 --port 8000 & \
+  uvicorn api.app:app --host 0.0.0.0 --port 8000 --log-level debug --access-log & \
   streamlit run ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501 & \
   wait -n \
 '

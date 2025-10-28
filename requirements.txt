@@ -9,3 +9,5 @@ requests==2.32.3
 python-dotenv==1.0.1
 onnxruntime==1.19.2
 pytest==8.3.3
+dotenv~=0.9.9
+openai~=2.6.1

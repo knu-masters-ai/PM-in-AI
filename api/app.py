@@ -9,9 +9,10 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, UnidentifiedImageError
 
+from .ai_explainer import explain_annotated_image_as_json
 from .schemas import PredictionResponse, BBox
 from .inference import predict  # -> всередині має викликати ONNX-бекенд (onnxruntime)
-from .utils import draw_boxes, pil_to_base64_png
+from .utils import draw_boxes, pil_to_base64_png, pil_to_data_url_png, resize_max_width, pil_to_data_url_jpeg
 from .onnx_infer import yolo_onnx_predict  # для warm-up
 
 app = FastAPI(title="KidneyStoneAI (ONNX)", version="0.4.0")
@@ -70,12 +71,28 @@ async def predict_endpoint(file: UploadFile = File(...)):
 
     label, confidence, boxes = predict(img)
     vis = draw_boxes(img, boxes)
-    b64 = pil_to_base64_png(vis)
+    vis_small = resize_max_width(vis, 1024)
+    b64 = pil_to_base64_png(vis_small)  # для показу в UI (можеш лишити PNG)
+    data_url = pil_to_data_url_jpeg(vis_small, 85)  # для OpenAI (JPEG значно менший)
+
+    # -> опційно можна додати підказку з фактами: кількість bbox, макс конфіденс тощо
+    hint = f"Кількість виділених ділянок: {len(boxes)}."
+
+    try:
+        explanation = explain_annotated_image_as_json(data_url_png=data_url, extra_hint=hint)
+        summary = explanation.get("summary_text") or (
+            "Виявлено ознаки каменів." if label == "HasStone" else "Ознак каменів не виявлено."
+        )
+    except Exception as e:
+        # Не валимо запит, якщо зовнішній сервіс недоступний
+        explanation = {}
+        summary = "Результат сформовано локально. Пояснювач тимчасово недоступний."
 
     return PredictionResponse(
         label=label,
         confidence=confidence,
         boxes=[BBox(x=x, y=y, w=w, h=h, score=float(confidence)) for (x, y, w, h) in boxes],
         image_base64=b64,
-        message=("Result: stones detected!" if label == "HasStone" else "Result: stones NOT detected."),
+        message=summary,  # <- тепер сюди кладемо human-friendly текст
+        explanation=explanation  # <- ДОДАЙ це поле у вашу Pydantic-схему (див. нижче)
     )
