@@ -3,10 +3,10 @@ from typing import List, Optional, Any
 
 
 class BBox(BaseModel):
-    x: int
-    y: int
-    w: int
-    h: int
+    x: float
+    y: float
+    w: float
+    h: float
     score: float
 
 
@@ -16,4 +16,6 @@ class PredictionResponse(BaseModel):
     boxes: List[BBox]
     image_base64: str
     message: str
-    explanation: Optional[Any] = None   # JSON від OpenAI (strict schema)
+    explanation: Optional[Any] = None
+    emailed: Optional[bool] = None  # <- нове
+    email_error: Optional[str] = None  # <- нове (лише для дебагу)
