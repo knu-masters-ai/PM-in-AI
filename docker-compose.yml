@@ -10,6 +10,12 @@ services:
       - STREAMLIT_SERVER_HEADLESS=true
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - SMTP_USE_TLS=${SMTP_USE_TLS}
     ports:
       - "8000:8000"  # FastAPI docs -> http://localhost:8000/docs
       - "8501:8501"  # Streamlit UI -> http://localhost:8501
